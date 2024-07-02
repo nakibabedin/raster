@@ -21,6 +21,8 @@ let transform image =
   let img = Grayscale.transform image in
   Image.foldi img ~init:img ~f:(fun ~x ~y img pixel ->
     let og_pixel_val = Pixel.red pixel in
+    (* let new_pixel_val = match og_pixel_val > benchmark with | true ->
+       Image.max_val image | false -> 0 in *)
     match og_pixel_val > benchmark with
     | true ->
       let new_pixel_val = Image.max_val img in

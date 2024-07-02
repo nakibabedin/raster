@@ -4,11 +4,24 @@ open Core
    the "blue" pixels of the foreground image with pixels from the
    corresponding position in the background image instead of just ignoring
    the background image and returning the foreground image. *)
-let transform ~foreground ~background =
+let transform_improved ~foreground ~background =
+  Image.mapi foreground ~f:(fun ~x ~y pixel ->
+    let is_blue =
+      Pixel.blue pixel > Pixel.red pixel + Pixel.green pixel
+      && Pixel.blue pixel + Pixel.red pixel + Pixel.green pixel > 10000
+    in
+    match is_blue with true -> Image.get background ~x ~y | false -> pixel)
+;;
+
+let _transform ~foreground ~background =
   Image.mapi foreground ~f:(fun ~x ~y pixel ->
     let is_blue = Pixel.blue pixel > Pixel.red pixel + Pixel.green pixel in
     match is_blue with true -> Image.get background ~x ~y | false -> pixel)
 ;;
+
+(* let transform_improved ~foreground ~background = let new_foreground =
+   transform ~foreground ~background in transform ~foreground:new_foreground
+   ~background ;; *)
 
 let command =
   Command.basic
@@ -29,7 +42,7 @@ let command =
       fun () ->
         let foreground = Image.load_ppm ~filename:foreground_file in
         let background = Image.load_ppm ~filename:background_file in
-        let image' = transform ~foreground ~background in
+        let image' = transform_improved ~foreground ~background in
         Image.save_ppm
           image'
           ~filename:
